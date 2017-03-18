@@ -140,7 +140,11 @@ function initMap()
 
                 if(distance < 0.5 && distance > 0)
                 {
-                    info = "tady bude neco napsany";
+                    info = info + "<div class=\"in\"><h3 style='color: white;'>Beware incoming vehicle</h3>" +
+                        "<b>Reasons: </b> " + formatReasons(data[j].driver_data.moods) + "<br/>" +
+                        "<b>Current speed: </b>" + data[j].vehicle_data.speed + "km/h<br/>" +
+                        "<b>Distance: </b>" + distance.toFixed(3) + "km" +
+                        "<br><br>Leave a safe distance</br></div>";
                 }
             }
 
@@ -148,8 +152,8 @@ function initMap()
             "<h3>"+ data[j].vehicle_uuid +"</h3>" +
             "<b>Position: </b> H" + data[j].vehicle_data.geo.lat + " V" + data[j].vehicle_data.geo.lng + "<br>" +
             "<b>Tire wear: </b>" + parseFloat(data[j].vehicle_data.tire_wear) * 100 + "%<br>" +
-            "<b>Weight: </b>" + data[j].vehicle_data.weight + "Kg<br>" +
-            "<b>Distance: </b>" + distance + "km" +
+            "<b>Weight: </b>" + data[j].vehicle_data.weight + "%<br>" +
+            "<b>Distance: </b>" + distance.toFixed(3) + "km" +
             "</div>";
 
             //}
@@ -158,6 +162,16 @@ function initMap()
         document.getElementById("right").innerHTML = info;
 
         document.getElementById(id).innerHTML = str;
+    }
+
+    function formatReasons(reasons)
+    {
+        var out = "<ul>";
+        for(var i in reasons)
+        {
+            out += "<li>"+reasons[i]+"</li>";
+        }
+        return out + "</ul>"
     }
 
     function renderGauge(speed)
