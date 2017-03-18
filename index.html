@@ -6,6 +6,8 @@
         {
             padding: 0;
             margin: 0;
+            font-family: Verdana;
+            font-size: 10px;
         }
         #map {
             margin: 0;
@@ -17,15 +19,26 @@
             position: fixed;
             left: 10px;
             top: 50px;
-            width: 200px;
-            height: 40px;
+            width: 300px;
             z-index: 400000;
+            min-height: 300px;
+        }
+        #left .in
+        {
             background-color: white;
             border-radius: 3px;
             padding: 10px;
             border: 1px solid #dedede;
             box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+            margin-bottom: 1em;
+            cursor: pointer;
         }
+
+        #left .in.active
+        {
+            border: 5px solid #0face0;
+        }
+
         #right {
             position: fixed;
             right: 10px;
@@ -50,6 +63,9 @@
 </head>
 <body>
     <div id="left">
+
+    </div>
+    <div id="right">
 
     </div>
     <div id="bottom">

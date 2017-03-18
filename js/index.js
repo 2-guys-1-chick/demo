@@ -9,7 +9,7 @@ loadJSON("roads/road1.json", function (data) {
 });
 
 var car_list = {
-    car_1: {
+    /*car_1: {
         marker: null,
         geo: {lat: 50.082736, lng: 14.422212},
         icon: icons_path+icons[0]
@@ -23,8 +23,16 @@ var car_list = {
         marker: null,
         geo: {lat: 50.082336, lng: 14.423412},
         icon: icons_path+icons[2]
-    }
+    }*/
 };
+
+var current = null;
+
+function setActual(id)
+{
+    current = id;
+}
+
 
 function initMap()
 {
@@ -44,7 +52,7 @@ function initMap()
 
     document.getElementById("map").style.height = window.innerHeight + "px";
 
-    var i = 0;
+    /*var i = 0;
 
     setInterval(function () {
         i++;
@@ -57,7 +65,7 @@ function initMap()
             icon: parseInt((Math.random()*3)),
             geo: road[i]
         });
-    }, 100);
+    }, 100);*/
 
     function setMarkerData(marker, data)
     {
@@ -79,7 +87,6 @@ function initMap()
     ws.onmessage = function (evt)
     {
         var msg = JSON.parse(evt.data);
-        console.log(car_list);
         if(!car_list.hasOwnProperty(msg.vehicle_uuid))
         {
             car_list[msg.vehicle_uuid] = {};
@@ -90,27 +97,67 @@ function initMap()
             });
         }
 
-        map.setCenter(msg.vehicle_data.geo);
+        /*if(!current)
+        {
+            current = msg.vehicle_uuid;
+
+        }*/
+
+        if(current !== null && current === msg.vehicle_uuid)
+        {
+            map.setCenter(msg.vehicle_data.geo);
+            renderGauge(msg.vehicle_data.speed !== 0 ? parseFloat(parseInt(msg.vehicle_data.speed) + Math.random()*1.3) : 0);
+        }
 
         for(var i in msg)
         {
             car_list[msg.vehicle_uuid][i] = msg[i];
         }
 
+
+        renderData("left", car_list);
+
+
         setMarkerData(car_list[msg.vehicle_uuid].marker, {
             icon: 0,
             geo: car_list[msg.vehicle_uuid].vehicle_data.geo
         });
 
-        renderData("left", msg);
-        renderGauge(msg.vehicle_data.speed !== 0 ? parseFloat(parseInt(msg.vehicle_data.speed) + Math.random()*1.3) : 0);
     };
 
     function renderData(id, data)
     {
-        document.getElementById(id).innerHTML = "" +
-            //"<b>Speed: </b>" + parseFloat(parseInt(data.vehicle_data.speed) + "." + parseInt(Math.random()*100)) + "Km/h" +
-            "";
+        var str = "";
+        var info = "";
+        var distance = 0;
+        for(var j in data)
+        {
+            /*if(current !== msg.vehicle_uuid)
+             {*/
+            if(current)
+            {
+                distance = calcCrow(data[j].vehicle_data.geo.lat, data[j].vehicle_data.geo.lng, data[current].vehicle_data.geo.lat, data[current].vehicle_data.geo.lng);
+
+                if(distance < 0.5 && distance > 0)
+                {
+                    info = "tady bude neco napsany";
+                }
+            }
+
+            str = str + "<div class=\"in"+ (data[j].vehicle_uuid === current ? ' active' : '') +"\" onclick=\"setActual('"+data[j].vehicle_uuid+"')\">" +
+            "<h3>"+ data[j].vehicle_uuid +"</h3>" +
+            "<b>Position: </b> H" + data[j].vehicle_data.geo.lat + " V" + data[j].vehicle_data.geo.lng + "<br>" +
+            "<b>Tire wear: </b>" + parseFloat(data[j].vehicle_data.tire_wear) * 100 + "%<br>" +
+            "<b>Weight: </b>" + data[j].vehicle_data.weight + "Kg<br>" +
+            "<b>Distance: </b>" + distance + "km" +
+            "</div>";
+
+            //}
+        }
+
+        document.getElementById("right").innerHTML = info;
+
+        document.getElementById(id).innerHTML = str;
     }
 
     function renderGauge(speed)
@@ -138,6 +185,27 @@ function initMap()
             chart.draw(data, options);
         }
     }
+}
+
+function calcCrow(lat1, lon1, lat2, lon2)
+{
+    var R = 6371; // km
+    var dLat = toRad(lat2-lat1);
+    var dLon = toRad(lon2-lon1);
+    var lat1 = toRad(lat1);
+    var lat2 = toRad(lat2);
+
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var d = R * c;
+    return d;
+}
+
+// Converts numeric degrees to radians
+function toRad(Value)
+{
+    return Value * Math.PI / 180;
 }
 
 function loadJSON(name, callback)
