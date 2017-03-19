@@ -187,7 +187,7 @@ function initMap()
         {
             var data = google.visualization.arrayToDataTable([
                 ['Label', 'Value'],
-                ['[Km/h]', speed],
+                ['[km/h]', speed],
             ]);
 
             var options = {
